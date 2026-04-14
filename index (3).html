@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NASCAR Qualifying Order Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0c10;--surface:#12151c;--surface-hover:#181c26;--border:#1e2330;--accent:#e8b100;--accent-dim:#a37e00;--text:#e8eaf0;--text-dim:#6b7280;--text-muted:#3d4452;--green:#22c55e;--red:#ef4444;--blue:#3b82f6}
+  *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Barlow',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}.hf{font-family:'Barlow Condensed','Barlow',system-ui,sans-serif}
+  header{background:linear-gradient(135deg,var(--surface),var(--bg));border-bottom:2px solid var(--accent);padding:28px 24px 24px;text-align:center;position:relative}header::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:repeating-linear-gradient(90deg,var(--accent) 0px,var(--accent) 12px,var(--bg) 12px,var(--bg) 24px)}
+  .h-series{font-size:13px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}.h-title{font-size:clamp(26px,5vw,40px);font-weight:800;text-transform:uppercase;letter-spacing:1px;line-height:1.1;margin-bottom:4px}.h-sub{font-size:14px;color:var(--text-dim)}
+  .container{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}.card h2{font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}.card p{font-size:13px;color:var(--text-dim);line-height:1.5;margin-bottom:12px}
+  .input-box{width:100%;padding:12px 14px;font-size:15px;font-family:'Barlow',monospace,system-ui,sans-serif;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);outline:none;line-height:1.6}.input-box:focus{border-color:var(--accent)}.input-box::placeholder{color:var(--text-muted);font-size:13px}
+  .btn{display:block;width:100%;padding:14px 24px;font-family:'Barlow Condensed',system-ui,sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--bg);background:linear-gradient(135deg,var(--accent),var(--accent-dim));border:none;border-radius:8px;cursor:pointer;transition:transform .15s;box-shadow:0 4px 24px #e8b10033;margin-top:12px}.btn:hover{transform:translateY(-1px)}
+  .btn-sm{font-family:'Barlow Condensed',system-ui,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 14px;cursor:pointer}.btn-sm:hover,.btn-sm.on{color:var(--accent);border-color:var(--accent)}
+  .err{background:#ef444411;border:1px solid #ef444433;border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:14px;color:var(--red);display:none}
+  .race-dets{display:flex;flex-wrap:wrap;gap:6px 24px;font-size:13px}.race-dets .l{color:var(--text-dim)}.race-dets .v{color:var(--text);font-weight:500}
+  .count-badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px}.count-badge.ok{background:var(--green);color:var(--bg)}.count-badge.warn{background:var(--red);color:#fff}
+  .dtable{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}.dhead,.drow{display:grid;padding:10px 14px;align-items:center}.dhead{background:var(--bg);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);padding:12px 14px}.drow{border-bottom:1px solid var(--border);transition:background .12s}.drow:last-of-type{border-bottom:none}.drow:hover{background:var(--surface-hover)}.drow.hl{background:#e8b10008}
+  .cols-n{grid-template-columns:48px 48px 1fr 1fr}.cols-d{grid-template-columns:48px 48px 1fr 1fr 52px 52px 56px}
+  .c-ord{font-weight:700;font-size:15px;color:var(--text-muted)}.c-ord.top{color:var(--accent)}.c-car{font-weight:700;font-size:14px;color:var(--blue)}.c-drv{font-weight:500;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.c-tm{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.c-num{font-size:13px;color:var(--text-dim);text-align:right}.c-score{font-size:13px;font-weight:600;text-align:right}.c-score.top{color:var(--accent)}
+  .tleg{padding:10px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px}.ldot{display:inline-block;width:8px;height:8px;border-radius:2px;background:#e8b10022;border:1px solid #e8b10044}
+  .info{margin-top:16px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text-dim);line-height:1.6}.info h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:4px}.info strong{color:var(--text)}
+  .disc{margin-top:12px;font-size:11px;color:var(--text-muted);text-align:center;line-height:1.5}.toolbar{display:flex;justify-content:flex-end;margin-bottom:10px}
+
+  /* Reference grid */
+  .ref-toggle{font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline;display:inline-block;margin-top:8px;margin-bottom:4px;background:none;border:none;font-family:inherit}
+  .ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;margin-top:8px;font-size:12px}
+  .ref-item{display:flex;gap:8px;padding:4px 8px;border-radius:4px;background:var(--bg);align-items:center}
+  .ref-car{font-weight:700;color:var(--blue);min-width:24px;text-align:right}
+  .ref-name{color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .live-count{font-size:13px;color:var(--accent);font-weight:600;margin-top:8px;min-height:20px}
+
+  @media(max-width:520px){.cols-n{grid-template-columns:40px 42px 1fr 1fr}.cols-d{grid-template-columns:40px 42px 1fr 46px 46px 50px}.cols-d .c-tm{display:none}.ref-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hf h-series">NASCAR Cup Series</div>
+  <h1 class="hf h-title">Qualifying Order Calculator</h1>
+  <div class="h-sub">Enter car numbers \u2022 Instant results \u2022 No internet needed</div>
+</header>
+<div class="container">
+  <div class="card">
+    <h2 class="hf">Enter Race Results</h2>
+    <p>Type car numbers in finishing order (1st place first), separated by commas. Find car numbers on the NASCAR.com results page \u2014 they're the small badges under each driver's name.</p>
+    <input class="input-box" id="carInput" type="text" placeholder="e.g. 54, 12, 5, 45, 19, 34, 22, 60, 11, 77, ..." autocomplete="off" oninput="updateCount()">
+    <div class="live-count" id="liveCount"></div>
+    <button class="btn hf" onclick="calculate()">&#x1F3C1; Calculate Qualifying Order</button>
+    <button class="ref-toggle" onclick="toggleRef()">&#x25BC; Show car number reference</button>
+    <div id="refGrid" style="display:none">
+      <div class="ref-grid" id="refGridInner"></div>
+    </div>
+  </div>
+  <div class="err" id="errBox"></div>
+  <div id="resultsBox" style="display:none"></div>
+</div>
+<script>
+const OWNERS={
+  "1":{r:21,d:"Ross Chastain",t:"Trackhouse Racing"},"2":{r:18,d:"Austin Cindric",t:"Team Penske"},"3":{r:27,d:"Austin Dillon",t:"Richard Childress Racing"},"4":{r:31,d:"Noah Gragson",t:"Front Row Motorsports"},"5":{r:6,d:"Kyle Larson",t:"Hendrick Motorsports"},"6":{r:11,d:"Brad Keselowski",t:"RFK Racing"},"7":{r:15,d:"Daniel Su\u00e1rez",t:"Spire Motorsports"},"8":{r:24,d:"Kyle Busch",t:"Richard Childress Racing"},"9":{r:5,d:"Chase Elliott",t:"Hendrick Motorsports"},"10":{r:32,d:"Ty Dillon",t:"Kaulig Racing"},"11":{r:3,d:"Denny Hamlin",t:"Joe Gibbs Racing"},"12":{r:2,d:"Ryan Blaney",t:"Team Penske"},"16":{r:20,d:"AJ Allmendinger",t:"Kaulig Racing"},"17":{r:10,d:"Chris Buescher",t:"RFK Racing"},"19":{r:17,d:"Chase Briscoe",t:"Joe Gibbs Racing"},"20":{r:9,d:"Christopher Bell",t:"Joe Gibbs Racing"},"21":{r:25,d:"Josh Berry",t:"Wood Brothers Racing"},"22":{r:12,d:"Joey Logano",t:"Team Penske"},"23":{r:8,d:"Bubba Wallace",t:"23XI Racing"},"24":{r:7,d:"William Byron",t:"Hendrick Motorsports"},"34":{r:26,d:"Todd Gilliland",t:"Front Row Motorsports"},"35":{r:29,d:"Riley Herbst",t:"23XI Racing"},"38":{r:22,d:"Zane Smith",t:"Front Row Motorsports"},"41":{r:34,d:"Cole Custer",t:"Haas Factory Team"},"42":{r:28,d:"John Hunter Nemechek",t:"Legacy Motor Club"},"43":{r:23,d:"Erik Jones",t:"Legacy Motor Club"},"45":{r:1,d:"Tyler Reddick",t:"23XI Racing"},"47":{r:30,d:"Ricky Stenhouse Jr.",t:"JTG Daugherty"},"48":{r:36,d:"Alex Bowman",t:"Hendrick Motorsports"},"51":{r:35,d:"Cody Ware",t:"Rick Ware Racing"},"54":{r:4,d:"Ty Gibbs",t:"Joe Gibbs Racing"},"60":{r:14,d:"Ryan Preece",t:"RFK Racing"},"66":{r:37,d:"Chad Finchum",t:"Garage 66"},"71":{r:19,d:"Michael McDowell",t:"Spire Motorsports"},"77":{r:13,d:"Carson Hocevar",t:"Spire Motorsports"},"88":{r:33,d:"Connor Zilisch",t:"Hendrick Motorsports"},"97":{r:16,d:"Shane van Gisbergen",t:"Trackhouse Racing"},
+};
+const STANDINGS_LABEL="After Bristol (Race 8, Apr 12 2026)";
+const TOTAL_CARS=Object.keys(OWNERS).length;
+
+// Build reference grid sorted by car number
+const refEl=document.getElementById('refGridInner');
+const sortedCars=Object.keys(OWNERS).sort((a,b)=>Number(a)-Number(b));
+refEl.innerHTML=sortedCars.map(c=>'<div class="ref-item"><span class="ref-car">'+c+'</span><span class="ref-name">'+OWNERS[c].d+'</span></div>').join('');
+
+let refVisible=false;
+function toggleRef(){refVisible=!refVisible;document.getElementById('refGrid').style.display=refVisible?'block':'none';document.querySelector('.ref-toggle').textContent=(refVisible?'\u25B2 Hide':'\u25BC Show')+' car number reference'}
+
+function updateCount(){
+  const raw=document.getElementById('carInput').value.trim();
+  const nums=raw?raw.split(/[\s,;|]+/).filter(s=>/^\d{1,3}$/.test(s)):[];
+  const el=document.getElementById('liveCount');
+  if(nums.length===0){el.textContent='';return}
+  el.textContent=nums.length+' car'+(nums.length!==1?'s':'')+' entered';
+}
+
+function calculate(){
+  const raw=document.getElementById('carInput').value.trim();
+  const errEl=document.getElementById('errBox');
+  const resEl=document.getElementById('resultsBox');
+  errEl.style.display='none';resEl.style.display='none';
+
+  if(!raw){errEl.textContent='Please enter car numbers.';errEl.style.display='block';return}
+
+  const nums=raw.split(/[\s,;|]+/).map(s=>s.trim()).filter(s=>/^\d{1,3}$/.test(s));
+  if(nums.length<5){errEl.textContent='Only found '+nums.length+' car numbers. Enter all finishing car numbers separated by commas.';errEl.style.display='block';return}
+
+  const dupes=nums.filter((n,i)=>nums.indexOf(n)!==i);
+  if(dupes.length>0){errEl.textContent='Duplicate car number(s): '+[...new Set(dupes)].join(', ')+'. Each car should appear only once.';errEl.style.display='block';return}
+
+  const drivers=nums.map((car,i)=>{
+    const finish=i+1;
+    const own=OWNERS[car];
+    const rank=own?own.r:TOTAL_CARS+1;
+    const name=own?own.d:('Car #'+car);
+    const team=own?own.t:'';
+    const metric=Math.round((rank*0.3+finish*0.7)*10)/10;
+    return{car,name,team,rank,finish,metric,known:!!own};
+  });
+
+  const unknown=drivers.filter(d=>!d.known);
+  if(unknown.length>0){errEl.textContent='Unknown car number(s): '+unknown.map(d=>d.car).join(', ')+'. Using rank '+(TOTAL_CARS+1)+' for these.';errEl.style.display='block'}
+
+  drivers.sort((a,b)=>{if(b.metric!==a.metric)return b.metric-a.metric;return b.rank-a.rank});
+  drivers.forEach((d,i)=>{d.order=i+1});
+  renderResults(drivers);
+}
+
+let showD=false;
+function renderResults(drivers){
+  const el=document.getElementById('resultsBox');const t=drivers.length;const cc=showD?'cols-d':'cols-n';const ok=t>=35;
+  let h='<div class="card"><div class="race-dets">'+
+    '<div><span class="l">Drivers: </span><span class="v">'+t+'<span class="count-badge '+(ok?'ok':'warn')+'">'+(ok?'\u2713':t+'/'+TOTAL_CARS)+'</span></span></div>'+
+    '<div><span class="l">Standings: </span><span class="v">'+STANDINGS_LABEL+'</span></div>'+
+    '<div><span class="l">Formula: </span><span class="v">(Rank \u00d7 0.30) + (Finish \u00d7 0.70)</span></div>'+
+    '</div></div>'+
+    '<div class="toolbar"><button class="btn-sm hf '+(showD?'on':'')+'" onclick="toggleD()">'+(showD?'Hide':'Show')+' Metric Details</button></div>'+
+    '<div class="dtable"><div class="dhead hf '+cc+'"><div>Order</div><div>Car</div><div>Driver</div><div>Team</div>'+
+    (showD?'<div style="text-align:right">Rank</div><div style="text-align:right">Fin</div><div style="text-align:right">Score</div>':'')+'</div>';
+  drivers.forEach((d,i)=>{const l5=i>=t-5;
+    h+='<div class="drow '+(l5?'hl':'')+' '+cc+'"><div class="hf c-ord '+(l5?'top':'')+'">'+d.order+'</div><div class="hf c-car">'+esc(d.car)+'</div><div class="c-drv">'+esc(d.name)+'</div><div class="c-tm">'+esc(d.team)+'</div>'+
+    (showD?'<div class="c-num">'+d.rank+'</div><div class="c-num">P'+d.finish+'</div><div class="c-score '+(l5?'top':'')+'">'+d.metric.toFixed(1)+'</div>':'')+'</div>'});
+  h+='<div class="tleg"><span class="ldot"></span> Last 5 out \u2014 best track conditions</div></div>'+
+    '<div class="info"><h4 class="hf">How it works</h4><strong>Metric = (Owner Standings Rank \u00d7 0.30) + (Race Finish \u00d7 0.70)</strong><br>Highest score qualifies first (worst). Lowest qualifies last (best track conditions).</div>'+
+    '<div class="disc">Owner standings from '+esc(STANDINGS_LABEL)+'. Come back to Claude to update standings when needed.</div>';
+  el.innerHTML=h;el.style.display='block';window._d=drivers;
+  window.scrollTo({top:el.offsetTop-20,behavior:'smooth'});
+}
+function toggleD(){showD=!showD;if(window._d)renderResults(window._d)}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+</script>
+</body>
+</html>
